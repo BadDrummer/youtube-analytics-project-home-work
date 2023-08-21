@@ -12,19 +12,43 @@ class Channel:
         self._channel_id = channel_id
         self.__init_from_api()
 
-    @property
-    def channel_id(self):
-        return self._channel_id
-
     def __init_from_api(self):
         service = self.get_service()
         channel_info = service.channels().list(id=self._channel_id, part='snippet,statistics').execute()
         self.title = channel_info['items'][0]['snippet']['title']
         self.url = f"https://www.youtube.com/channel/{self._channel_id}"
         self.description = channel_info['items'][0]['snippet']['description']
-        self.subscribers = channel_info['items'][0]['statistics']['subscriberCount']
-        self.video_count = channel_info['items'][0]['statistics']['videoCount']
-        self.views_count = channel_info['items'][0]['statistics']['viewCount']
+        self.subscribers = int(channel_info['items'][0]['statistics']['subscriberCount'])
+        self.video_count = int(channel_info['items'][0]['statistics']['videoCount'])
+        self.views_count = int(channel_info['items'][0]['statistics']['viewCount'])
+
+    def __str__(self):
+        return f'{self.title} ({self.url})'
+
+    def __add__(self, other):
+        return self.subscribers + other.subscribers
+
+    def __sub__(self, other):
+        return self.subscribers - other.subscribers
+
+    def __gt__(self, other):
+        return self.subscribers > other.subscribers
+
+    def __ge__(self, other):
+        return self.subscribers >= other.subscribers
+
+    def __lt__(self, other):
+        return self.subscribers < other.subscribers
+
+    def __le__(self, other):
+        return self.subscribers <= other.subscribers
+
+    def __eq__(self, other):
+        return self.subscribers == other.subscribers
+
+    @property
+    def channel_id(self):
+        return self._channel_id
 
     def print_info(self):
         """Выводит в консоль информацию о канале."""
@@ -34,7 +58,6 @@ class Channel:
     @classmethod
     def get_service(cls):
         return build('youtube', 'v3', developerKey=cls.api_key)
-
 
     def to_json(self, filename):
         channel_data = {
@@ -48,5 +71,3 @@ class Channel:
         }
         with open(filename, 'w', encoding='utf-8') as output_file:
             json.dump(channel_data, output_file, ensure_ascii=False, indent=2)
-
-
