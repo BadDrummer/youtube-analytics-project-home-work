@@ -6,15 +6,21 @@ class Video:
     api_key: str = os.getenv('API_KEY')
 
     def __init__(self, video_id):
-        video = \
-            self.get_service().videos().list(part='snippet,statistics,contentDetails, topicDetails',
-                                             id=video_id).execute()['items'][0]
-        self.video_id = video_id
-        self.title = video['snippet']['title']
-        self.link = 'https://www.youtube.com/watch?v=' + video_id
-        self.view_count = video['statistics']['viewCount']
-        self.like_count = video['statistics']['likeCount']
-
+        try:
+            video = \
+                self.get_service().videos().list(part='snippet,statistics,contentDetails, topicDetails',
+                                                 id=video_id).execute()['items'][0]
+            self.video_id = video_id
+            self.title = video['snippet']['title']
+            self.link = 'https://www.youtube.com/watch?v=' + video_id
+            self.view_count = video['statistics']['viewCount']
+            self.like_count = video['statistics']['likeCount']
+        except IndexError:
+            self.video_id = None
+            self.title = None
+            self.link = None
+            self.view_count = None
+            self.like_count = None
 
     @classmethod
     def get_service(cls):
